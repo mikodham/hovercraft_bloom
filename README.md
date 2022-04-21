@@ -18,7 +18,20 @@ rosdep install --from-paths src --ignore-src -r -y
 ## Deploy
 ```
 source ~/[your catkin_ws]/devel/setup.bash
+catkin_make # -DCATKIN_BLACKLIST_PACKAGES="scan_to_cloud_converter"
 ```
+
+# imu
+sudo pigpiod
+rosrun driver_mpu9250 driver_mpu9250_rpi _interrupt_gpio_pin:=14 
+
+# lidar 
+roslaunch rplidar_ros rplidar.launch
+
+# pwm
+rosrun pwm_pca9685 pca9685_node
+# esc
+rosrun control motor_control_test.py
 
 ---
 ## Developer Contact

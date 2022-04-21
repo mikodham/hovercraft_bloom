@@ -192,6 +192,7 @@ def main():
         IMU_data = [yaw,mpu.gz]
         data_pub = Float32MultiArray(data=IMU_data)
         mpu.yawPub.publish(data_pub)
+        print(rpy)
 
 
 # Main loop
