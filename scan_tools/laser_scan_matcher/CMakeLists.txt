@@ -7,21 +7,21 @@ set( ROS_CXX_DEPENDENCIES
   nodelet
   sensor_msgs
   tf
-  pcl_ros
-  pcl_conversions
+#   pcl_ros
+#   pcl_conversions
   geometry_msgs
   nav_msgs)
 
 # Find catkin and all required ROS components
 find_package(catkin REQUIRED COMPONENTS ${ROS_CXX_DEPENDENCIES} rostest)
-find_package(PCL REQUIRED QUIET)
+# find_package(PCL REQUIRED QUIET)
 
 # Find csm project
 find_package(PkgConfig)
 pkg_check_modules(csm REQUIRED csm)
 
 # Set include directories
-include_directories(include ${catkin_INCLUDE_DIRS} ${csm_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${csm_INCLUDE_DIRS} ) #${PCL_INCLUDE_DIRS}
 link_directories(${csm_LIBRARY_DIRS})
 
 # Declare info that other packages need to import library generated here

@@ -16,8 +16,10 @@ Example launch file: launches the scan matcher with pre-recorded data
           args="-d $(find laser_scan_matcher)/demo/demo.rviz"/>
   </group>
 
-  <node pkg="rosbag" type="play" name="play"
-    args="$(find laser_scan_matcher)/demo/demo.bag --delay=5 --clock"/>
+
+
+  <!-- <node pkg="rosbag" type="play" name="play"
+    args="$(find laser_scan_matcher)/demo/demo.bag -delay=5 -clock" should be double- /> -->
 
   #### publish an example base_link -> laser transform ###########
 
@@ -31,10 +33,10 @@ Example launch file: launches the scan matcher with pre-recorded data
     <param name="laser_scan_matcher_node/publish_pose_with_covariance" value="true"/>
     <param name="laser_scan_matcher_node/publish_pose_with_covariance_stamped" value="true"/>
   </group>
-  <node pkg="laser_scan_matcher" type="laser_scan_matcher_node"
+  <!-- <node pkg="laser_scan_matcher" type="laser_scan_matcher_node"
     name="laser_scan_matcher_node" output="screen">
 
     <param name="max_iterations" value="10"/>
-  </node>
+  </node> -->
 
 </launch>

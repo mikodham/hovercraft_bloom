@@ -28,12 +28,25 @@ rosrun driver_mpu9250 driver_mpu9250_rpi _interrupt_gpio_pin:=14
 # lidar 
 roslaunch rplidar_ros rplidar.launch
 
+# rosbag
+rosbag record *
+
 # pwm
 rosrun pwm_pca9685 pca9685_node
 # esc
 rosrun control motor_control_test.py
 
+# csm-laser_scan_matcher
+```
+# put the csm outside of src, because csv cannot be compiled with catkin_make
+# export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/home/pi/catkin_ws/dump/csm/sm/pkg-config
+#cp -r /home/pi/catkin_ws/dump/csm/deploy/include/ /home/pi/catkin_ws/install/
+# source ~/catkin_ws/dump/csm/deploy/setup.bash
+just catkin_make_isolated
+```
+
 ---
 ## Developer Contact
 Dhammiko Arya Gandamana - dhammikoarya@kaist.ac.kr
+
 Sungmin Kim - sungmin203@kaist.ac.kr
