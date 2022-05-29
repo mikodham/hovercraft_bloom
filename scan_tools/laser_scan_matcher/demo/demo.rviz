@@ -108,7 +108,7 @@ Visualization Manager:
   Global Options:
     Background Color: 0; 0; 0
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: laser
     Frame Rate: 30
   Name: root
   Tools:
@@ -162,6 +162,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1437
-  X: -4
-  Y: -32
+  # Width: 1437
+  # X: -4
+  # Y: -32

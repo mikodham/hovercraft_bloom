@@ -32,13 +32,13 @@ PCA9685Node::PCA9685Node()
 
     // Set the pwm frequency to some value between 40 and 1000
     // 50 is typically used for servos
-    int pwm_freq;
-    nh_.param("/servos/pwm_frequency", pwm_freq, PWM_FREQ);
+    int pwm_freq = 50;
+    // nh_.param("/servos/pwm_frequency", pwm_freq, PWM_FREQ);
     board_controller_.set_pwm_freq(pwm_freq);
 
     // Load servo configurations from rosparams
-    configure_servo_("throttle");
-    configure_servo_("steering");
+    // configure_servo_("throttle");
+    // configure_servo_("steering");
 
     // initiate subscribers
     abs_sub_ = nh_.subscribe<pca9685_board::Servo>(
@@ -76,9 +76,9 @@ void PCA9685Node::configure_servo_(const std::string name)
     config.range = get_int_param_(param_name + "/range");
     servos_.insert(std::pair<std::string, servo_config>(name, config));
 
-    ROS_INFO("(%s) center: %d, direction: %d, channel: %d, range %d",
-        name.c_str(), config.center, config.direction, config.channel,
-        config.range);
+    // ROS_INFO("(%s) center: %d, direction: %d, channel: %d, range %d",
+        // name.c_str(), config.center, config.direction, config.channel,
+        // config.range);
 }
 
 /**
@@ -106,8 +106,8 @@ void PCA9685Node::set_servo_proportional_(
     const servo_config* config = get_servo_config(servo_name);
     int pwm_value = map_value_to_pwm_(config, value);
     board_controller_.set_pwm(config->channel, pwm_value);
-    ROS_INFO("servo: %s, channel: %d, value: %f, pwm_value: %d",
-        servo_name.c_str(), config->channel, value, pwm_value);
+    // ROS_INFO("servo: %s, channel: %d, value: %f, pwm_value: %d",
+        // servo_name.c_str(), config->channel, value, pwm_value);
 }
 
 /**
@@ -122,11 +122,11 @@ void PCA9685Node::pwm_callback_(
 {
     // Stop when value is set to 1000
     if (msg->value == -1000){
-        ROS_INFO("stop channel %d in 10 sec", msg->channel);
+        // ROS_INFO("stop channel %d in 10 sec", msg->channel);
         stop_(msg->channel);
     }
     else {    
-        ROS_INFO("set pwm %f on channel %d", msg->value, msg->channel);
+        // ROS_INFO("set pwm %f on channel %d", msg->value, msg->channel);
     }    board_controller_.set_pwm(msg->channel, msg->value);
 }
 
@@ -164,6 +164,6 @@ void PCA9685Node::servo_absolute_callback_(
 {
     const servo_config* config = get_servo_config(msg->name);
     board_controller_.set_pwm(config->channel, msg->value);
-    ROS_INFO("servo: %s, channel: %d, value: %d",
-        msg->name.c_str(), config->channel, static_cast<int>(msg->value));
+    // ROS_INFO("servo: %s, channel: %d, value: %d",
+        // msg->name.c_str(), config->channel, static_cast<int>(msg->value));
 }

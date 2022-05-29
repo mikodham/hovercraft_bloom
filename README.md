@@ -32,7 +32,9 @@ roslaunch rplidar_ros rplidar.launch
 rosbag record *
 
 # pwm
-rosrun pwm_pca9685 pca9685_node
+<!-- rosrun pwm_pca9685 pca9685_node -->
+roslaunch pca9685_board pca9685_board.launch
+rostopic pub -r 10 pwm_msg pca9685_board/pwm "{channel: 1, value: 290}"
 # esc
 rosrun control motor_control_test.py
 

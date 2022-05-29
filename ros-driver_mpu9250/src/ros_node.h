@@ -5,7 +5,7 @@
 
 #include "driver.h"
 #include "calibration.h"
-
+#include <sensor_msgs/Imu.h>
 #include <ros/ros.h>
 #include <sensor_msgs_ext/calibrate_gyroscope.h>
 
@@ -64,8 +64,9 @@ private:
     /// \brief Publisher for temperature data.
     ros::Publisher m_publisher_temperature;
 
-    /// ADD HOVERCRAFT
+    /// HOVERBLOOM
     ros::Publisher imu_publisher;
+    ros::Publisher mag_publisher;
 
     // SERVICES
     /// \brief Service server for calibrating the gyroscope.

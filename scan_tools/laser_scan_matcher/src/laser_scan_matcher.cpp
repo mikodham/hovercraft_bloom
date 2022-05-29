@@ -138,7 +138,7 @@ LaserScanMatcher::~LaserScanMatcher()
 void LaserScanMatcher::initParams()
 {
   if (!nh_private_.getParam ("base_frame", base_frame_))
-    base_frame_ = "laser";
+    base_frame_ = "laser"; // HOVERBLOOM initially base_link
   if (!nh_private_.getParam ("fixed_frame", fixed_frame_))
     fixed_frame_ = "world";
 
@@ -851,9 +851,9 @@ void LaserScanMatcher::getPrediction(double& pr_ch_x, double& pr_ch_y,
 void LaserScanMatcher::createTfFromXYTheta(
   double x, double y, double theta, tf::Transform& t)
 {
-  t.setOrigin(tf::Vector3(x, y, 0.0));
+  t.setOrigin(tf::Vector3(-x, -y, 0.0)); //EDITED HOVERBLOOM t.setOrigin(tf::Vector3(x, y, 0.0));
   tf::Quaternion q;
-  q.setRPY(0.0, 0.0, theta);
+  q.setRPY(0.0, 0.0, -theta); // EDITED HOVERBLOOM  q.setRPY(0.0, 0.0, theta);
   t.setRotation(q);
 }
 

@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs_ext/accelerometer.h>
 #include <sensor_msgs_ext/gyroscope.h>
 #include <sensor_msgs_ext/magnetometer.h>
@@ -38,13 +39,15 @@ ros_node::ros_node(std::shared_ptr<driver> driver, int argc, char **argv)
     // Read calibrations.
     ros_node::m_calibration_accelerometer.load(private_node, "calibration/accelerometer");
     ros_node::m_calibration_magnetometer.load(private_node, "calibration/magnetometer");
-
+    
     // Set up data publishers.
     ros_node::m_publisher_accelerometer = ros_node::m_node->advertise<sensor_msgs_ext::accelerometer>("imu/accelerometer", 1);
     ros_node::m_publisher_gyroscope = ros_node::m_node->advertise<sensor_msgs_ext::gyroscope>("imu/gyroscope", 1);
     ros_node::m_publisher_magnetometer = ros_node::m_node->advertise<sensor_msgs_ext::magnetometer>("imu/magnetometer", 1);
     ros_node::m_publisher_temperature = ros_node::m_node->advertise<sensor_msgs_ext::temperature>("imu/temperature", 1);
-    ros_node::imu_publisher = ros_node::m_node->advertise<sensor_msgs:Imu>("imudata",1);
+    // HOVERBLOOM
+    ros_node::imu_publisher = ros_node::m_node->advertise<sensor_msgs::Imu>("imu/data_raw",1);
+    ros_node::mag_publisher = ros_node::m_node->advertise<sensor_msgs::MagneticField>("imu/mag",1);
     // Initialize the driver and set parameters.
     try
     {
@@ -52,7 +55,7 @@ ros_node::ros_node(std::shared_ptr<driver> driver, int argc, char **argv)
         ros_node::m_driver->set_data_callback(std::bind(&ros_node::data_callback, this, std::placeholders::_1));
         // Initialize driver.
         ros_node::m_driver->initialize(static_cast<unsigned int>(param_i2c_bus), static_cast<unsigned int>(param_i2c_address), static_cast<unsigned int>(param_interrupt_pin));
-        // Set parameters.
+        // Set parameters
         float data_rate = ros_node::m_driver->p_dlpf_frequencies(static_cast<driver::gyro_dlpf_frequency_type>(param_gyro_dlpf_frequency), static_cast<driver::accel_dlpf_frequency_type>(param_accel_dlpf_frequency), param_max_data_rate);
         ros_node::m_driver->p_gyro_fsr(static_cast<driver::gyro_fsr_type>(param_gyro_fsr));
         ros_node::m_driver->p_accel_fsr(static_cast<driver::accel_fsr_type>(param_accel_fsr));
@@ -191,23 +194,41 @@ void ros_node::data_callback(driver::data data)
     ros_node::m_publisher_gyroscope.publish(message_gyro);
     
 
-    // ADD HOVERCRAFT
-    ros::Time current_time = ros::Time::now();
+    // HOVERBLOOM
+    ros::Time current_time = ros::Time::now(); //double secs =ros::Time::now().toSec();
+    // h = std_msgs.msg.Header()
+    // h.stamp = rospy.Time.now() # Note you need to call rospy.init_node() before this will work
     sensor_msgs::Imu message_imu;
     message_imu.header.stamp = current_time;
     message_imu.linear_acceleration.x = message_accel.x;
     message_imu.linear_acceleration.y = message_accel.y ;
     message_imu.linear_acceleration.z = message_accel.z ;
-        /// TODO: from gyro and accel to angular_velocity wx, wy, wz
-    // message_imu.angular_velocity.x = ;
-    // message_imu.angular_velocity.y = ;
-    // message_imu.angular_velocity.z = ;
+    message_imu.linear_acceleration_covariance[0] = 0.0061;
+    message_imu.linear_acceleration_covariance[4] = 0.0061;
+    message_imu.linear_acceleration_covariance[8] = 0.0061;
+
+    //https://www.mathworks.com/help/fusion/ug/Estimating-Orientation-Using-Inertial-Sensor-Fusion-and-MPU-9250.html
+    //GyroscopeNoiseMPU9250 = 3.0462e-06; % GyroscopeNoise (variance) in units of rad/s
+    // AccelerometerNoiseMPU9250 = 0.0061; % AccelerometerNoise (variance) in units of m/s^2
+    //https://www.hindawi.com/journals/sp/2017/7594763/
+    // which filter to choose: http://www.olliw.eu/2013/imu-data-fusing/#chapter24
+    // try complementary, then maghony/madgwick.
+
+    /// From gyro to angular_velocity wx, wy, wz
+    message_imu.angular_velocity.x = message_gyro.x;
+    message_imu.angular_velocity.y = message_gyro.y;
+    message_imu.angular_velocity.z = message_gyro.z;
+    message_imu.angular_velocity_covariance[0] = 3.0462e-06;
+    message_imu.angular_velocity_covariance[4] = 3.0462e-06;
+    message_imu.angular_velocity_covariance[8] = 3.0462e-06;
 
     /// TODO: from gyro and accel provide rpy
+    // float zeroes[10] = { 0 };
+    // message_imu.orientation_covariance[0] = -1.0;
     // roll = ;
     // pitch = ;
     // yaw = ;
-
+    
     /// TODO: from rpy to quaternion 
     // message_imu.quaternion.w = ;
     // message_imu.quaternion.x = ;
@@ -230,6 +251,14 @@ void ros_node::data_callback(driver::data data)
         ros_node::m_calibration_magnetometer.calibrate(message_mag.x, message_mag.y, message_mag.z);
         // Publish message.
         ros_node::m_publisher_magnetometer.publish(message_mag);
+
+        // HOVERBLOOM
+        // ros::Time current_time = ros::Time::now();
+        sensor_msgs::MagneticField msg_mag;
+        msg_mag.magnetic_field.x = message_mag.x;
+        msg_mag.magnetic_field.y = message_mag.y;
+        msg_mag.magnetic_field.z = message_mag.z;
+        ros_node::mag_publisher.publish(msg_mag);
     }
 
     // Create temperature message.
